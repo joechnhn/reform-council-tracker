@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reform Council Tracker</title>
+  <style>
+    /* Minimal functional styling only — aesthetics to come later */
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; line-height: 1.5; background: #fff; color: #111; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 0 16px; }
+
+    /* Intro */
+    #intro { padding: 48px 0 32px; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .tabs button { padding: 8px 14px; border: 1px solid #999; background: #f4f4f4; cursor: pointer; font: inherit; }
+    .tabs button[aria-selected="true"] { background: #111; color: #fff; border-color: #111; }
+
+    /* Slider */
+    .slider { position: relative; overflow: hidden; border: 1px solid #ccc; }
+    .track { display: flex; transition: transform 0.35s ease; will-change: transform; }
+    .panel { flex: 0 0 100%; padding: 20px; min-width: 0; }
+    .panel h2 { margin-top: 0; }
+
+    /* Slider controls */
+    .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+    .controls button { padding: 8px 14px; font: inherit; cursor: pointer; }
+    .controls button:disabled { opacity: 0.4; cursor: default; }
+    .dots { display: flex; gap: 8px; }
+    .dots span { width: 10px; height: 10px; border-radius: 50%; background: #ccc; }
+    .dots span.active { background: #111; }
+
+    /* Entries */
+    .entries { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+    .entry { border: 1px solid #ddd; padding: 12px; }
+    .entry h3 { margin: 0 0 4px; font-size: 1.05rem; }
+    .meta { font-size: 0.85rem; color: #555; }
+    .empty { color: #777; font-style: italic; }
+  </style>
+</head>
+<body>
+
+  <section id="intro">
+    <div class="wrap">
+      <h1>Reform Council Tracker</h1>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    </div>
+  </section>
+
+  <section id="tracker">
+    <div class="wrap">
+      <div class="tabs" role="tablist" aria-label="Tracker categories"></div>
+
+      <div class="slider" aria-live="polite">
+        <div class="track"></div>
+      </div>
+
+      <div class="controls">
+        <button type="button" id="prev" aria-label="Previous section">&larr; Prev</button>
+        <div class="dots" aria-hidden="true"></div>
+        <button type="button" id="next" aria-label="Next section">Next &rarr;</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="data.js"></script>
+  <script>
+    // ---- Rendering --------------------------------------------------------
+    const tabsEl  = document.querySelector('.tabs');
+    const trackEl = document.querySelector('.track');
+    const dotsEl  = document.querySelector('.dots');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+
+    const fmtDate = d => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+    SECTIONS.forEach((s, i) => {
+      const tab = document.createElement('button');
+      tab.type = 'button';
+      tab.role = 'tab';
+      tab.id = `tab-${s.id}`;
+      tab.setAttribute('aria-controls', `panel-${s.id}`);
+      tab.textContent = `${s.label} (${s.entries.length})`;
+      tab.addEventListener('click', () => goTo(i));
+      tabsEl.appendChild(tab);
+
+      const sorted = [...s.entries].sort((a, b) => b.date.localeCompare(a.date));
+      const panel = document.createElement('div');
+      panel.className = 'panel';
+      panel.role = 'tabpanel';
+      panel.id = `panel-${s.id}`;
+      panel.setAttribute('aria-labelledby', tab.id);
+      panel.innerHTML = `
+        <h2>${esc(s.label)}</h2>
+        ${sorted.length ? `<ul class="entries">${sorted.map(e => `
+          <li class="entry">
+            <h3>${esc(e.title)}</h3>
+            <div class="meta">${esc(e.council)} · ${fmtDate(e.date)}${e.source ? ` · <a href="${esc(e.source)}" target="_blank" rel="noopener">Source</a>` : ''}</div>
+            <p>${esc(e.summary)}</p>
+          </li>`).join('')}</ul>` : '<p class="empty">No entries yet.</p>'}
+      `;
+      trackEl.appendChild(panel);
+
+      dotsEl.appendChild(document.createElement('span'));
+    });
+
+    // ---- Slider logic -----------------------------------------------------
+    let current = 0;
+
+    function goTo(i) {
+      current = Math.max(0, Math.min(SECTIONS.length - 1, i));
+      trackEl.style.transform = `translateX(-${current * 100}%)`;
+
+      [...tabsEl.children].forEach((t, j) => {
+        t.setAttribute('aria-selected', j === current);
+        t.tabIndex = j === current ? 0 : -1;
+      });
+      [...trackEl.children].forEach((p, j) => p.inert = j !== current);
+      [...dotsEl.children].forEach((d, j) => d.classList.toggle('active', j === current));
+
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === SECTIONS.length - 1;
+
+      history.replaceState(null, '', `#${SECTIONS[current].id}`);
+    }
+
+    prevBtn.addEventListener('click', () => goTo(current - 1));
+    nextBtn.addEventListener('click', () => goTo(current + 1));
+
+    // Arrow keys when focus is on the tabs
+    tabsEl.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') { goTo(current + 1); tabsEl.children[current].focus(); }
+      if (e.key === 'ArrowLeft')  { goTo(current - 1); tabsEl.children[current].focus(); }
+    });
+
+    // Touch swipe
+    let startX = null;
+    trackEl.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    trackEl.addEventListener('touchend', e => {
+      if (startX === null) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 50) goTo(current + (dx < 0 ? 1 : -1));
+      startX = null;
+    });
+
+    // Deep link support: index.html#tax opens that section
+    const start = SECTIONS.findIndex(s => s.id === location.hash.slice(1));
+    goTo(start === -1 ? 0 : start);
+  </script>
+</body>
+</html>
