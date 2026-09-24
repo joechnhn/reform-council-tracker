@@ -12,7 +12,8 @@
   <meta name="twitter:card" content="summary">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Libre+Caslon+Text:wght@400;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="look.js"></script>
   <style>
     :root {
       --bg:     #eaebe5;
@@ -170,10 +171,12 @@
       .more-list li { padding-bottom: 18px; }
     }
   </style>
+  <link rel="stylesheet" href="looks.css">
 </head>
 <body>
 
   <header class="top">
+    <div class="bunting" aria-hidden="true"></div>
     <a class="home" href="index.html">Reform Council Tracker</a>
     <nav aria-label="Sections"></nav>
   </header>
@@ -207,7 +210,13 @@
       const { e, s } = found;
       const n = pad2(SECTIONS.indexOf(s) + 1);
       const council = findReformCouncil(e.council);
-      const pageUrl = `${location.origin}${location.pathname}?id=${encodeURIComponent(entryId(e))}`;
+      // The story's link, including the current look so shared links open in the same style
+      const pageUrl = () => {
+        const url = new URL(location.href);
+        url.search = ''; url.hash = '';
+        url.searchParams.set('id', entryId(e));
+        return TrackerLook.withLook(url.href);
+      };
       const paras = String(e.body || e.summary).split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
 
       document.title = `${e.title} – Reform Council Tracker`;
@@ -217,14 +226,14 @@
       // Share links
       const text = `${e.title} – ${e.council}`;
       const enc = encodeURIComponent;
-      const shareButtons = `
+      const shareButtons = (url = pageUrl()) => `
         <div class="share-btns">
           <button type="button" data-copy>Copy link</button>
-          <a href="https://wa.me/?text=${enc(`${text} ${pageUrl}`)}" target="_blank" rel="noopener">WhatsApp</a>
-          <a href="https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(pageUrl)}" target="_blank" rel="noopener">X</a>
-          <a href="https://www.facebook.com/sharer/sharer.php?u=${enc(pageUrl)}" target="_blank" rel="noopener">Facebook</a>
-          <a href="https://bsky.app/intent/compose?text=${enc(`${text} ${pageUrl}`)}" target="_blank" rel="noopener">Bluesky</a>
-          <a href="mailto:?subject=${enc(e.title)}&body=${enc(`${text}\n\n${pageUrl}`)}">Email</a>
+          <a href="https://wa.me/?text=${enc(`${text} ${url}`)}" target="_blank" rel="noopener">WhatsApp</a>
+          <a href="https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}" target="_blank" rel="noopener">X</a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=${enc(url)}" target="_blank" rel="noopener">Facebook</a>
+          <a href="https://bsky.app/intent/compose?text=${enc(`${text} ${url}`)}" target="_blank" rel="noopener">Bluesky</a>
+          <a href="mailto:?subject=${enc(e.title)}&body=${enc(`${text}\n\n${url}`)}">Email</a>
           ${navigator.share ? '<button type="button" data-native>More&hellip;</button>' : ''}
         </div>`;
 
@@ -247,7 +256,7 @@
               </div>
               <div class="share">
                 <h2>Share</h2>
-                ${shareButtons}
+                <div class="share-slot">${shareButtons()}</div>
               </div>
             </aside>
 
@@ -257,7 +266,7 @@
               ${e.source ? `<a class="source" href="${esc(e.source)}" target="_blank" rel="noopener">Read the source &nearr;</a>` : ''}
               <div class="share share-end">
                 <h2>Share this story</h2>
-                ${shareButtons}
+                <div class="share-slot">${shareButtons()}</div>
               </div>
             </div>
           </div>
@@ -279,19 +288,28 @@
         </section>` : ''}
       `;
 
-      main.querySelectorAll('[data-copy]').forEach(btn => btn.addEventListener('click', async () => {
+      // Share buttons are rebuilt when the look changes, so listen on the page instead
+      main.addEventListener('click', async ev => {
+        const btn = ev.target.closest('[data-copy]');
+        if (!btn) return;
         try {
-          await navigator.clipboard.writeText(pageUrl);
+          await navigator.clipboard.writeText(pageUrl());
           btn.textContent = 'Copied!';
         } catch {
-          prompt('Copy this link:', pageUrl);
+          prompt('Copy this link:', pageUrl());
         }
         btn.classList.add('copied');
         setTimeout(() => { btn.textContent = 'Copy link'; btn.classList.remove('copied'); }, 2000);
-      }));
-      main.querySelectorAll('[data-native]').forEach(btn => btn.addEventListener('click', () => {
-        navigator.share({ title: e.title, text, url: pageUrl }).catch(() => {});
-      }));
+      });
+      main.addEventListener('click', ev => {
+        if (!ev.target.closest('[data-native]')) return;
+        navigator.share({ title: e.title, text, url: pageUrl() }).catch(() => {});
+      });
+
+      // Rebuild the share links with the new look
+      document.addEventListener('lookchange', () => {
+        main.querySelectorAll('.share-slot').forEach(slot => { slot.innerHTML = shareButtons(); });
+      });
     }
   </script>
 </body>

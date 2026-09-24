@@ -9,6 +9,8 @@ cuts to public services, council tax hikes, and scandals & resignations.
 - `data.js` – the tracker entries. **Edit this file to add records.**
 - `story.html` – the page for a single story, filled in from `data.js`
 - `common.js` – shared code used by both pages (no need to edit)
+- `look.js` – the look switcher (Bold, Refined, Civic) in the footer of every page
+- `looks.css` – the Refined and Civic styles (Bold is the default styling inside each page)
 - `privacy.html` – privacy policy page (placeholder wording for now)
 - `map.js` – UK council boundaries for the map (generated from ONS data; no need to edit)
 
@@ -40,5 +42,18 @@ connect it to a database is marked `DEMO ONLY` in `index.html`.
 Every entry has its own page at `story.html?id=...`, with share buttons. See the
 notes at the top of `data.js` for the optional `body` (full story text) and `id`
 (to keep a link fixed if you later edit the headline) fields.
+
+## Looks
+
+The slider in the footer switches the whole site between three looks: **Bold**
+(the default), **Refined** and **Civic**. The chosen look is remembered, and it is
+added to the address as `?look=refined` or `?look=civic`, so a shared link opens
+in the same look. Share buttons on story pages include it automatically.
+
+To send someone straight to a look, add it to any link, e.g.
+`https://<your-username>.github.io/<repo-name>/?look=civic`
+
+`lookbook.html` is the design reference for the three looks. It isn't linked
+from the site, so you can leave it out of the upload if you prefer.
 
 Link to a specific section by adding `#cuts`, `#tax` or `#scandal` to the URL.

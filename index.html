@@ -7,7 +7,8 @@
   <meta name="description" content="Tracking decisions made by Reform-run councils across the UK.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Libre+Caslon+Text:wght@400;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="look.js"></script>
   <style>
     :root {
       --bg:     #eaebe5;
@@ -16,6 +17,9 @@
       --yellow: #ecec3c;
       --font:   'Archivo', Arial, Helvetica, sans-serif;
       --pad:    clamp(16px, 2.2vw, 32px);
+      --map-other: #d6d7cf;
+      --map-reform: var(--red);
+      --map-hover: #c4c5bc;
     }
 
     * { box-sizing: border-box; }
@@ -92,24 +96,24 @@
     .map-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; }
     #uk-map { display: block; width: 100%; max-height: 86svh; touch-action: manipulation; }
     #uk-map path {
-      fill: #d6d7cf;
+      fill: var(--map-other);
       stroke: var(--bg);
       stroke-width: 0.6;
       stroke-linejoin: round;
       cursor: pointer;
       transition: fill 0.15s ease;
     }
-    #uk-map path.reform     { fill: var(--red); }
+    #uk-map path.reform     { fill: var(--map-reform); }
     #uk-map path.reform-min { fill: url(#hatch); }
     #uk-map path:hover, #uk-map path.active { stroke: var(--ink); stroke-width: 1.4; }
     #uk-map path.picked { stroke: var(--ink); stroke-width: 2.2; }
-    #uk-map path:not(.reform):not(.reform-min):hover { fill: #c4c5bc; }
+    #uk-map path:not(.reform):not(.reform-min):hover { fill: var(--map-hover); }
     .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px; font-size: 13px; }
     .legend span { display: inline-flex; align-items: center; gap: 7px; }
     .legend i { width: 14px; height: 14px; display: inline-block; }
-    .legend .k-maj { background: var(--red); }
-    .legend .k-min { background: repeating-linear-gradient(45deg, var(--red) 0 2px, #d6d7cf 2px 5px); }
-    .legend .k-oth { background: #d6d7cf; }
+    .legend .k-maj { background: var(--map-reform); }
+    .legend .k-min { background: repeating-linear-gradient(45deg, var(--map-reform) 0 2px, var(--map-other) 2px 5px); }
+    .legend .k-oth { background: var(--map-other); }
     .map-foot { font-size: 11px; opacity: 0.55; text-align: center; }
 
     .map-tip {
@@ -363,19 +367,30 @@
       .track, .slider, .tab { transition: none; }
     }
   </style>
+  <link rel="stylesheet" href="looks.css">
 </head>
 <body>
 
   <nav class="nav" aria-label="Sections"></nav>
 
   <header class="hero">
+    <div class="hero-promo">An independent guide to your council</div>
+    <div class="bunting" aria-hidden="true"></div>
+    <p class="hero-kicker">For our towns and counties</p>
     <h1 aria-label="Reform Council Tracker">
       <span class="fit"><span>Reform</span></span>
       <span class="fit wide"><span>Council Tracker</span></span>
       <span class="fit narrow"><span>Council</span></span>
       <span class="fit narrow"><span>Tracker</span></span>
+      <span class="title-plain" aria-hidden="true"><span class="w-reform">Reform </span>Council Tracker</span>
     </h1>
-    <p class="tagline">Decisions made by Reform&#8209;run councils across the UK</p>
+    <div class="hero-rule" aria-hidden="true"></div>
+    <p class="tagline">
+      <span class="for-bold">Decisions made by Reform&#8209;run councils across the UK</span>
+      <span class="for-refined">Know what your council is delivering, and what you&rsquo;re paying for.</span>
+      <span class="for-civic">Your town. Your money. Your say.</span>
+    </p>
+    <a class="hero-cta" href="#local">Find your council &rarr;</a>
   </header>
 
   <section class="intro">
@@ -385,8 +400,8 @@
       <svg id="uk-map" role="img" aria-label="Map of UK council areas, with Reform-run councils highlighted" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <rect width="5" height="5" fill="#d6d7cf"/>
-            <rect width="2" height="5" fill="#d8392b"/>
+            <rect width="5" height="5" style="fill: var(--map-other)"/>
+            <rect width="2" height="5" style="fill: var(--map-reform)"/>
           </pattern>
         </defs>
       </svg>
@@ -484,6 +499,7 @@
       <p>Every entry links to its source. Spotted an error or something missing? <a href="#submit">Tell us</a>.</p>
       <p><span id="updated"></span><br><a href="privacy.html">Privacy policy</a></p>
     </div>
+    <p class="foot-title">Reform Council Tracker</p>
     <span class="fit"><span>Council Tracker</span></span>
   </footer>
 
@@ -616,6 +632,8 @@
     [...trackEl.children].forEach(p => ro.observe(p));
 
     window.addEventListener('resize', fitText);
+    // A new look changes fonts and sizes, so re-fit the headline and slider
+    document.addEventListener('lookchange', () => { fitText(); document.fonts?.ready.then(() => { fitText(); fitHeight(); }); });
     fitText();
     document.fonts?.ready.then(fitText);
 
