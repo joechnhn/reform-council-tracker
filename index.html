@@ -239,6 +239,7 @@
       padding: 5px 9px 4px;
     }
     .source:hover { background: var(--ink); color: var(--bg); }
+    .entry h3 a:hover { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 4px; }
     .empty { padding: 28px 0; border-top: 1px solid var(--ink); }
 
     /* ---- Controls ------------------------------------------------------ */
@@ -488,6 +489,7 @@
 
   <script src="data.js"></script>
   <script src="map.js"></script>
+  <script src="common.js"></script>
   <script>
     // ---- Helpers ----------------------------------------------------------
     const tabsEl   = document.querySelector('.tabs');
@@ -498,10 +500,6 @@
     const prevBtn  = document.getElementById('prev');
     const nextBtn  = document.getElementById('next');
 
-    const pad2 = n => String(n).padStart(2, '0');
-    const parseDate = d => new Date(d + 'T00:00:00');
-    const dotDate = d => { const x = parseDate(d); return `${pad2(x.getDate())}.${pad2(x.getMonth() + 1)}.${x.getFullYear()}`; };
-    const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
     // Scale each .fit line so its text spans the full width of its container
     function fitText() {
@@ -527,9 +525,9 @@
               ${section ? `<span class="sec">${esc(section.navLabel || section.label)}</span>` : ''}
             </div>
             <div>
-              <h3>${esc(e.title)}</h3>
+              <h3><a href="${entryUrl(e)}">${esc(e.title)}</a></h3>
               <p>${esc(e.summary)}</p>
-              ${e.source ? `<a class="source" href="${esc(e.source)}" target="_blank" rel="noopener">Source &nearr;</a>` : ''}
+              <a class="source" href="${entryUrl(e)}">Read more &rarr;</a>
             </div>
           </li>`;
     }
@@ -640,24 +638,6 @@
       startX = null;
     });
 
-    // ---- Reform councils --------------------------------------------------
-    const reformByCode = Object.fromEntries(COUNCILS.map(c => [c.code, c]));
-    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
-    // "1 year, 4 months" since a YYYY-MM-DD date
-    function timeSince(date) {
-      const s = parseDate(date), now = new Date();
-      let m = (now.getFullYear() - s.getFullYear()) * 12 + (now.getMonth() - s.getMonth());
-      if (now.getDate() < s.getDate()) m--;
-      const y = Math.floor(m / 12), r = m % 12;
-      const parts = [];
-      if (y) parts.push(`${y} year${y > 1 ? 's' : ''}`);
-      if (r) parts.push(`${r} month${r > 1 ? 's' : ''}`);
-      return parts.length ? parts.join(', ') : 'under a month';
-    }
-    const CONTROL_LABEL = { majority: 'Reform majority', minority: 'Reform minority', coalition: 'Reform-led coalition' };
-    const monthYear = d => { const x = parseDate(d); return `${MONTHS[x.getMonth()]} ${x.getFullYear()}`; };
-
     // ---- Map --------------------------------------------------------------
     const mapEl = document.getElementById('uk-map');
     const tipEl = document.querySelector('.map-tip');
@@ -717,11 +697,6 @@
     const pcForm    = document.querySelector('.pc-form');
     const pcInput   = document.getElementById('pc');
     const pcResults = document.querySelector('.pc-results');
-
-    // Loose council-name matching, so "Kent", "Kent County Council" and "County Durham" / "Durham County Council" line up
-    const norm = s => String(s).toLowerCase().replace(/&/g, 'and')
-      .replace(/\b(county|borough|city|metropolitan|district|council|of|the|royal)\b/g, '')
-      .replace(/[^a-z]/g, '');
 
     pcForm.addEventListener('submit', async e => {
       e.preventDefault();

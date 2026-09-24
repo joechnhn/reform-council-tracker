@@ -10,6 +10,15 @@
 //   summary  – a sentence or two of detail
 //   source   – link to the source (news article, council minutes, etc.)
 //
+// Optional:
+//   body     – the full story for its own page. Separate paragraphs with a blank line.
+//              Use backticks (`like this`) so it can run over several lines.
+//              If left out, the story page shows the summary.
+//   id       – fixes the story's web address. By default it's made from the date and
+//              headline (e.g. story.html?id=2026-03-02-youth-services-funding-cut), so
+//              editing a headline changes the link. Once a story has been shared, copy its
+//              current id here so old links keep working if you change the headline.
+//
 // The entries below are placeholders. Replace them with real, sourced records.
 
 const SECTIONS = [
@@ -20,7 +29,12 @@ const SECTIONS = [
     description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Services reduced, closed or defunded.',
     entries: [
       { council: 'Example Council A', date: '2026-01-15', title: 'Placeholder: library opening hours reduced', summary: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', source: '#' },
-      { council: 'Example Council B', date: '2026-03-02', title: 'Placeholder: youth services funding cut', summary: 'Sed do eiusmod tempor incididunt ut labore et dolore.', source: '#' }
+      { council: 'Example Council B', date: '2026-03-02', title: 'Placeholder: youth services funding cut', summary: 'Sed do eiusmod tempor incididunt ut labore et dolore.', source: '#',
+        body: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.` }
     ]
   },
   {
@@ -29,7 +43,10 @@ const SECTIONS = [
     navLabel: 'Tax',
     description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Rises in council tax and other charges.',
     entries: [
-      { council: 'Example Council C', date: '2026-02-20', title: 'Placeholder: council tax up 4.99%', summary: 'Ut enim ad minim veniam, quis nostrud exercitation.', source: '#' }
+      { council: 'Example Council C', date: '2026-02-20', title: 'Placeholder: council tax up 4.99%', summary: 'Ut enim ad minim veniam, quis nostrud exercitation.', source: '#',
+        body: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.` }
     ]
   },
   {

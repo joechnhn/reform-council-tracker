@@ -7,6 +7,8 @@ cuts to public services, council tax hikes, and scandals & resignations.
 
 - `index.html` – the page (layout, styling, slider)
 - `data.js` – the tracker entries. **Edit this file to add records.**
+- `story.html` – the page for a single story, filled in from `data.js`
+- `common.js` – shared code used by both pages (no need to edit)
 - `privacy.html` – privacy policy page (placeholder wording for now)
 - `map.js` – UK council boundaries for the map (generated from ONS data; no need to edit)
 
@@ -34,5 +36,9 @@ name, so "Kent" and "Kent County Council" both work.
 The "Missing something?" form at the bottom is a demo: it checks the fields and
 shows a thank-you message, but nothing is sent or stored yet. The place to
 connect it to a database is marked `DEMO ONLY` in `index.html`.
+
+Every entry has its own page at `story.html?id=...`, with share buttons. See the
+notes at the top of `data.js` for the optional `body` (full story text) and `id`
+(to keep a link fixed if you later edit the headline) fields.
 
 Link to a specific section by adding `#cuts`, `#tax` or `#scandal` to the URL.

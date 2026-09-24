@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reform Council Tracker</title>
+  <meta name="description" content="Tracking decisions made by Reform-run councils across the UK.">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Reform Council Tracker">
+  <meta property="og:title" content="Reform Council Tracker">
+  <meta property="og:description" content="Tracking decisions made by Reform-run councils across the UK.">
+  <meta name="twitter:card" content="summary">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:     #eaebe5;
+      --ink:    #000;
+      --red:    #d8392b;
+      --yellow: #ecec3c;
+      --font:   'Archivo', Arial, Helvetica, sans-serif;
+      --pad:    clamp(16px, 2.2vw, 32px);
+      --accent: var(--ink);
+      --on-accent: var(--bg);
+    }
+    [data-section="cuts"]    { --accent: var(--red);    --on-accent: var(--ink); }
+    [data-section="tax"]     { --accent: var(--yellow); --on-accent: var(--ink); }
+    [data-section="scandal"] { --accent: var(--ink);    --on-accent: var(--bg); }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      font-weight: 700;
+      font-size: 15px;
+      line-height: 1.2;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; text-transform: inherit; letter-spacing: inherit; color: inherit; }
+    p { margin: 0; }
+
+    /* ---- Top bar ------------------------------------------------------- */
+    .top {
+      background: var(--red);
+      padding: var(--pad);
+      display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+      font-size: 17px;
+    }
+    .top .home { font-weight: 900; font-stretch: 125%; letter-spacing: -0.03em; font-size: clamp(17px, 2vw, 24px); }
+    .top nav { display: flex; gap: 20px; }
+    .top a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    /* ---- Article head -------------------------------------------------- */
+    article { padding: 70px var(--pad) 90px; }
+    .kicker {
+      display: inline-flex; gap: 12px;
+      background: var(--accent); color: var(--on-accent);
+      padding: 6px 10px 5px;
+      font-size: 15px;
+      margin-bottom: 26px;
+    }
+    .kicker:hover { background: var(--ink); color: var(--bg); }
+    h1 {
+      margin: 0;
+      max-width: 18ch;
+      font-size: clamp(40px, 7vw, 108px);
+      line-height: 0.88;
+      letter-spacing: -0.045em;
+      font-weight: 700;
+      text-wrap: balance;
+    }
+
+    /* ---- Article body -------------------------------------------------- */
+    .article-grid {
+      display: grid;
+      grid-template-columns: 1fr 3fr;
+      gap: var(--pad);
+      margin-top: 60px;
+      border-top: 2px solid var(--ink);
+      padding-top: 22px;
+    }
+    .side { display: flex; flex-direction: column; gap: 22px; align-self: start; position: sticky; top: 20px; }
+    .meta dl { margin: 0; display: grid; gap: 14px; }
+    .meta dt { font-size: 12px; opacity: 0.55; margin-bottom: 2px; }
+    .meta dd { margin: 0; font-size: 15px; }
+    .meta .status { display: inline-block; margin-top: 5px; background: var(--red); padding: 3px 7px 2px; font-size: 12px; }
+
+    .share h2 { font-size: 12px; opacity: 0.55; margin: 0 0 8px; font-weight: 700; }
+    .share-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+    .share-btns a, .share-btns button {
+      appearance: none; cursor: pointer;
+      background: transparent;
+      border: 2px solid var(--ink);
+      padding: 7px 10px 6px;
+      font-size: 13px;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .share-btns a:hover, .share-btns button:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+    .share-btns .copied { background: var(--ink); color: var(--bg); }
+
+    .content { max-width: 760px; }
+    .standfirst {
+      font-size: clamp(22px, 2.4vw, 32px);
+      line-height: 1.05;
+      letter-spacing: -0.025em;
+      margin-bottom: 34px;
+    }
+    /* Body text in sentence case so longer reads stay readable */
+    .body p {
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 500;
+      font-size: clamp(17px, 1.35vw, 20px);
+      line-height: 1.55;
+      margin-bottom: 1.1em;
+    }
+    .source {
+      display: inline-block;
+      margin-top: 18px;
+      background: var(--accent); color: var(--on-accent);
+      padding: 7px 11px 6px;
+      font-size: 14px;
+    }
+    .source:hover { background: var(--ink); color: var(--bg); }
+    .share-end { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--ink); }
+
+    /* ---- More stories -------------------------------------------------- */
+    .more { padding: 0 var(--pad) 110px; }
+    .more-head {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+      border-top: 2px solid var(--ink); padding-top: 18px; margin-bottom: 18px;
+    }
+    .more-head h2 { margin: 0; font-size: clamp(30px, 4vw, 56px); line-height: 0.9; letter-spacing: -0.04em; }
+    .more-head a { font-size: 15px; }
+    .more-head a:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .more-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--pad); }
+    .more-list li { border-top: 1px solid var(--ink); padding-top: 14px; }
+    .more-list .m { font-size: 13px; margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .more-list h3 { margin: 0; font-size: clamp(20px, 1.9vw, 28px); line-height: 0.95; letter-spacing: -0.03em; }
+    .more-list a:hover h3 { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 4px; }
+
+    /* ---- Not found ----------------------------------------------------- */
+    .missing { padding: 100px var(--pad) 140px; }
+    .missing h1 { margin-bottom: 26px; }
+    .missing a { text-decoration: underline; text-underline-offset: 3px; }
+
+    /* ---- Footer -------------------------------------------------------- */
+    footer {
+      background: var(--ink); color: var(--bg);
+      padding: 60px var(--pad) var(--pad);
+      display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+      font-size: 15px;
+    }
+    footer a { text-decoration: underline; text-underline-offset: 3px; }
+
+    @media (max-width: 720px) {
+      .top { flex-direction: column; gap: 10px; }
+      .top nav { gap: 14px; font-size: 14px; }
+      article { padding-top: 44px; }
+      .article-grid { grid-template-columns: 1fr; margin-top: 36px; }
+      .side { position: static; }
+      .meta dl { grid-template-columns: 1fr 1fr; }
+      .more-list { grid-template-columns: 1fr; gap: 0; }
+      .more-list li { padding-bottom: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="top">
+    <a class="home" href="index.html">Reform Council Tracker</a>
+    <nav aria-label="Sections"></nav>
+  </header>
+
+  <main id="story"></main>
+
+  <footer>
+    <p>Spotted an error or something missing? <a href="index.html#submit">Tell us</a>.</p>
+    <p><a href="privacy.html">Privacy policy</a></p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="common.js"></script>
+  <script>
+    const main = document.getElementById('story');
+    const id = new URLSearchParams(location.search).get('id');
+    const all = allEntries();
+    const found = all.find(({ e }) => entryId(e) === id);
+
+    // Section links in the top bar
+    document.querySelector('.top nav').innerHTML = SECTIONS
+      .map(s => `<a href="index.html#${esc(s.id)}">${esc(s.navLabel || s.label)}</a>`).join('');
+
+    if (!found) {
+      main.innerHTML = `
+        <section class="missing">
+          <h1>Story not found</h1>
+          <p>This story may have moved or been removed. <a href="index.html">Back to the tracker</a>.</p>
+        </section>`;
+    } else {
+      const { e, s } = found;
+      const n = pad2(SECTIONS.indexOf(s) + 1);
+      const council = findReformCouncil(e.council);
+      const pageUrl = `${location.origin}${location.pathname}?id=${encodeURIComponent(entryId(e))}`;
+      const paras = String(e.body || e.summary).split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+
+      document.title = `${e.title} – Reform Council Tracker`;
+      document.querySelector('meta[name="description"]').content = e.summary;
+      document.body.dataset.section = s.id;
+
+      // Share links
+      const text = `${e.title} – ${e.council}`;
+      const enc = encodeURIComponent;
+      const shareButtons = `
+        <div class="share-btns">
+          <button type="button" data-copy>Copy link</button>
+          <a href="https://wa.me/?text=${enc(`${text} ${pageUrl}`)}" target="_blank" rel="noopener">WhatsApp</a>
+          <a href="https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(pageUrl)}" target="_blank" rel="noopener">X</a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=${enc(pageUrl)}" target="_blank" rel="noopener">Facebook</a>
+          <a href="https://bsky.app/intent/compose?text=${enc(`${text} ${pageUrl}`)}" target="_blank" rel="noopener">Bluesky</a>
+          <a href="mailto:?subject=${enc(e.title)}&body=${enc(`${text}\n\n${pageUrl}`)}">Email</a>
+          ${navigator.share ? '<button type="button" data-native>More&hellip;</button>' : ''}
+        </div>`;
+
+      // Up to three other stories from the same section
+      const others = s.entries.filter(x => x !== e).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
+
+      main.innerHTML = `
+        <article>
+          <a class="kicker" href="index.html#${esc(s.id)}"><span>${n}</span><span>${esc(s.label)}</span></a>
+          <h1>${esc(e.title)}</h1>
+
+          <div class="article-grid">
+            <aside class="side">
+              <div class="meta">
+                <dl>
+                  <div><dt>Date</dt><dd><time datetime="${esc(e.date)}">${longDate(e.date)}</time></dd></div>
+                  <div><dt>Council</dt><dd>${esc(council ? council.name : e.council)}
+                    ${council ? `<br><span class="status">${CONTROL_LABEL[council.control]} since ${monthYear(council.since)}</span>` : ''}</dd></div>
+                </dl>
+              </div>
+              <div class="share">
+                <h2>Share</h2>
+                ${shareButtons}
+              </div>
+            </aside>
+
+            <div class="content">
+              <p class="standfirst">${esc(e.summary)}</p>
+              <div class="body">${e.body ? paras.map(p => `<p>${esc(p)}</p>`).join('') : ''}</div>
+              ${e.source ? `<a class="source" href="${esc(e.source)}" target="_blank" rel="noopener">Read the source &nearr;</a>` : ''}
+              <div class="share share-end">
+                <h2>Share this story</h2>
+                ${shareButtons}
+              </div>
+            </div>
+          </div>
+        </article>
+
+        ${others.length ? `
+        <section class="more">
+          <div class="more-head">
+            <h2>More: ${esc(s.navLabel || s.label)}</h2>
+            <a href="index.html#${esc(s.id)}">See all &rarr;</a>
+          </div>
+          <ul class="more-list">
+            ${others.map(o => `
+              <li><a href="${entryUrl(o)}">
+                <p class="m"><span>${dotDate(o.date)}</span><span>${esc(o.council)}</span></p>
+                <h3>${esc(o.title)}</h3>
+              </a></li>`).join('')}
+          </ul>
+        </section>` : ''}
+      `;
+
+      main.querySelectorAll('[data-copy]').forEach(btn => btn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(pageUrl);
+          btn.textContent = 'Copied!';
+        } catch {
+          prompt('Copy this link:', pageUrl);
+        }
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy link'; btn.classList.remove('copied'); }, 2000);
+      }));
+      main.querySelectorAll('[data-native]').forEach(btn => btn.addEventListener('click', () => {
+        navigator.share({ title: e.title, text, url: pageUrl }).catch(() => {});
+      }));
+    }
+  </script>
+</body>
+</html>
