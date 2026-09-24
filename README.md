@@ -7,6 +7,7 @@ cuts to public services, council tax hikes, and scandals & resignations.
 
 - `index.html` – the page (layout, styling, slider)
 - `data.js` – the tracker entries. **Edit this file to add records.**
+- `privacy.html` – privacy policy page (placeholder wording for now)
 
 ## Publishing on GitHub Pages
 
@@ -23,5 +24,9 @@ cuts to public services, council tax hikes, and scandals & resignations.
 
 Open `data.js` on GitHub, click the pencil icon, edit, and commit.
 The live site updates within a minute or two.
+
+The "Missing something?" form at the bottom is a demo: it checks the fields and
+shows a thank-you message, but nothing is sent or stored yet. The place to
+connect it to a database is marked `DEMO ONLY` in `index.html`.
 
 Link to a specific section by adding `#cuts`, `#tax` or `#scandal` to the URL.
