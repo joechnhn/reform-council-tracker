@@ -76,17 +76,96 @@
 
     /* ---- Intro --------------------------------------------------------- */
     .intro {
-      min-height: 80svh;
-      display: flex; align-items: center; justify-content: center;
-      padding: 120px var(--pad);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--pad);
+      align-items: center;
+      padding: 100px var(--pad);
     }
-    .intro p {
-      max-width: 1100px;
-      text-align: center;
-      font-size: clamp(22px, 3.4vw, 46px);
+    .intro > p {
+      font-size: clamp(22px, 2.9vw, 44px);
       line-height: 1.02;
       letter-spacing: -0.025em;
     }
+
+    /* ---- Map ----------------------------------------------------------- */
+    .map-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    #uk-map { display: block; width: 100%; max-height: 86svh; touch-action: manipulation; }
+    #uk-map path {
+      fill: #d6d7cf;
+      stroke: var(--bg);
+      stroke-width: 0.6;
+      stroke-linejoin: round;
+      cursor: pointer;
+      transition: fill 0.15s ease;
+    }
+    #uk-map path.reform     { fill: var(--red); }
+    #uk-map path.reform-min { fill: url(#hatch); }
+    #uk-map path:hover, #uk-map path.active { stroke: var(--ink); stroke-width: 1.4; }
+    #uk-map path.picked { stroke: var(--ink); stroke-width: 2.2; }
+    #uk-map path:not(.reform):not(.reform-min):hover { fill: #c4c5bc; }
+    .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px; font-size: 13px; }
+    .legend span { display: inline-flex; align-items: center; gap: 7px; }
+    .legend i { width: 14px; height: 14px; display: inline-block; }
+    .legend .k-maj { background: var(--red); }
+    .legend .k-min { background: repeating-linear-gradient(45deg, var(--red) 0 2px, #d6d7cf 2px 5px); }
+    .legend .k-oth { background: #d6d7cf; }
+    .map-foot { font-size: 11px; opacity: 0.55; text-align: center; }
+
+    .map-tip {
+      position: fixed; z-index: 20; pointer-events: none;
+      background: var(--ink); color: var(--bg);
+      padding: 12px 14px 11px;
+      max-width: 280px;
+      font-size: 13px; line-height: 1.3;
+      display: none;
+    }
+    .map-tip.show { display: block; }
+    .map-tip strong { display: block; font-size: 20px; line-height: 1; letter-spacing: -0.03em; margin-bottom: 8px; }
+    .map-tip .tag {
+      display: inline-block; margin-bottom: 8px;
+      background: var(--red); color: var(--ink);
+      padding: 3px 7px 2px; font-size: 12px;
+    }
+    .map-tip span { display: block; }
+    .map-tip .note { margin-top: 8px; opacity: 0.7; }
+
+    /* ---- Postcode lookup ----------------------------------------------- */
+    #local { padding: 0 var(--pad) 100px; }
+    .local-inner { border-top: 2px solid var(--ink); padding-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: var(--pad); }
+    #local h2 {
+      margin: 0;
+      font-size: clamp(34px, 4.4vw, 64px);
+      line-height: 0.9;
+      letter-spacing: -0.04em;
+    }
+    .pc-form { display: flex; gap: 0; align-self: end; }
+    .pc-form input {
+      flex: 1; min-width: 0;
+      appearance: none; border: 2px solid var(--ink); border-right: 0; border-radius: 0;
+      background: transparent;
+      font: inherit; font-size: 22px; letter-spacing: 0.02em;
+      padding: 12px 14px 10px;
+      color: var(--ink);
+    }
+    .pc-form input::placeholder { color: rgba(0,0,0,0.35); }
+    .pc-form input:focus { outline: none; background: rgba(0,0,0,0.05); }
+    .pc-form button {
+      appearance: none; border: 0; cursor: pointer;
+      background: var(--ink); color: var(--bg);
+      font-size: 17px; padding: 0 22px;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .pc-form button:hover { background: var(--red); color: var(--ink); }
+    .pc-note { grid-column: 2; font-size: 12px; opacity: 0.6; margin-top: -14px; }
+    .pc-results { grid-column: 1 / -1; }
+    .pc-results:empty { display: none; }
+    .pc-councils { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0 26px; }
+    .pc-council { border: 2px solid var(--ink); padding: 10px 12px 9px; font-size: 15px; }
+    .pc-council.is-reform { background: var(--red); border-color: var(--red); }
+    .pc-council small { display: block; font-size: 12px; margin-top: 3px; }
+    .pc-msg { font-size: 15px; padding: 8px 0; }
+    .pc-results .entry .sec { display: inline-block; margin-top: 4px; background: var(--accent); color: var(--on-accent); padding: 3px 7px 2px; font-size: 12px; align-self: start; }
 
     /* ---- Tracker tabs -------------------------------------------------- */
     #tracker { padding: 0 var(--pad) 120px; scroll-margin-top: 80px; }
@@ -268,6 +347,11 @@
       .entry { grid-template-columns: 1fr; gap: 10px; }
       .meta { flex-direction: row; gap: 12px; }
       .controls { font-size: 14px; }
+      .intro { grid-template-columns: 1fr; padding: 64px var(--pad); gap: 48px; }
+      #uk-map { max-height: 78svh; }
+      .local-inner { grid-template-columns: 1fr; gap: 18px; }
+      .pc-note { grid-column: 1; margin-top: -8px; }
+      .pc-form input { font-size: 18px; }
       #submit { padding-top: 64px; padding-bottom: 72px; }
       .submit-grid { grid-template-columns: 1fr; gap: 40px; }
       form { grid-template-columns: 1fr; }
@@ -295,6 +379,37 @@
 
   <section class="intro">
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+
+    <div class="map-wrap">
+      <svg id="uk-map" role="img" aria-label="Map of UK council areas, with Reform-run councils highlighted" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <rect width="5" height="5" fill="#d6d7cf"/>
+            <rect width="2" height="5" fill="#d8392b"/>
+          </pattern>
+        </defs>
+      </svg>
+      <div class="legend">
+        <span><i class="k-maj"></i>Reform majority</span>
+        <span><i class="k-min"></i>Reform minority or coalition</span>
+        <span><i class="k-oth"></i>Other</span>
+      </div>
+      <p class="map-foot">Shows county and unitary councils. District councils are included in postcode searches.</p>
+    </div>
+  </section>
+
+  <div class="map-tip" role="tooltip"></div>
+
+  <section id="local">
+    <div class="local-inner">
+      <h2>What's happening<br>where you live?</h2>
+      <form class="pc-form" novalidate>
+        <input id="pc" name="postcode" aria-label="Your postcode" type="text" placeholder="Your postcode" autocomplete="postal-code" spellcheck="false">
+        <button type="submit">Find &rarr;</button>
+      </form>
+      <p class="pc-note">Your postcode is looked up using postcodes.io. We don't store it.</p>
+      <div class="pc-results" aria-live="polite"></div>
+    </div>
   </section>
 
   <main id="tracker">
@@ -372,6 +487,7 @@
   </footer>
 
   <script src="data.js"></script>
+  <script src="map.js"></script>
   <script>
     // ---- Helpers ----------------------------------------------------------
     const tabsEl   = document.querySelector('.tabs');
@@ -400,6 +516,23 @@
     // "Latest entry" date in the footer
     const allDates = SECTIONS.flatMap(s => s.entries.map(e => e.date)).sort();
     if (allDates.length) document.getElementById('updated').textContent = `Latest entry ${dotDate(allDates.at(-1))}`;
+
+    // One tracker entry. `section` adds a coloured label (used in postcode results).
+    function entryHTML(e, section) {
+      return `
+          <li class="entry"${section ? ` data-section="${esc(section.id)}"` : ''}>
+            <div class="meta">
+              <time datetime="${esc(e.date)}">${dotDate(e.date)}</time>
+              <span>${esc(e.council)}</span>
+              ${section ? `<span class="sec">${esc(section.navLabel || section.label)}</span>` : ''}
+            </div>
+            <div>
+              <h3>${esc(e.title)}</h3>
+              <p>${esc(e.summary)}</p>
+              ${e.source ? `<a class="source" href="${esc(e.source)}" target="_blank" rel="noopener">Source &nearr;</a>` : ''}
+            </div>
+          </li>`;
+    }
 
     // ---- Rendering --------------------------------------------------------
     SECTIONS.forEach((s, i) => {
@@ -441,18 +574,7 @@
           <h2>${esc(s.label)}</h2>
           ${s.description ? `<p class="panel-desc">${esc(s.description)}</p>` : ''}
         </div>
-        ${sorted.length ? `<ul class="entries">${sorted.map(e => `
-          <li class="entry">
-            <div class="meta">
-              <time datetime="${esc(e.date)}">${dotDate(e.date)}</time>
-              <span>${esc(e.council)}</span>
-            </div>
-            <div>
-              <h3>${esc(e.title)}</h3>
-              <p>${esc(e.summary)}</p>
-              ${e.source ? `<a class="source" href="${esc(e.source)}" target="_blank" rel="noopener">Source &nearr;</a>` : ''}
-            </div>
-          </li>`).join('')}</ul>` : '<p class="empty">No entries yet.</p>'}
+        ${sorted.length ? `<ul class="entries">${sorted.map(e => entryHTML(e)).join('')}</ul>` : '<p class="empty">No entries yet.</p>'}
       `;
       trackEl.appendChild(panel);
     });
@@ -516,6 +638,134 @@
       const dy = e.changedTouches[0].clientY - startY;
       if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) goTo(current + (dx < 0 ? 1 : -1));
       startX = null;
+    });
+
+    // ---- Reform councils --------------------------------------------------
+    const reformByCode = Object.fromEntries(COUNCILS.map(c => [c.code, c]));
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    // "1 year, 4 months" since a YYYY-MM-DD date
+    function timeSince(date) {
+      const s = parseDate(date), now = new Date();
+      let m = (now.getFullYear() - s.getFullYear()) * 12 + (now.getMonth() - s.getMonth());
+      if (now.getDate() < s.getDate()) m--;
+      const y = Math.floor(m / 12), r = m % 12;
+      const parts = [];
+      if (y) parts.push(`${y} year${y > 1 ? 's' : ''}`);
+      if (r) parts.push(`${r} month${r > 1 ? 's' : ''}`);
+      return parts.length ? parts.join(', ') : 'under a month';
+    }
+    const CONTROL_LABEL = { majority: 'Reform majority', minority: 'Reform minority', coalition: 'Reform-led coalition' };
+    const monthYear = d => { const x = parseDate(d); return `${MONTHS[x.getMonth()]} ${x.getFullYear()}`; };
+
+    // ---- Map --------------------------------------------------------------
+    const mapEl = document.getElementById('uk-map');
+    const tipEl = document.querySelector('.map-tip');
+    const SVGNS = 'http://www.w3.org/2000/svg';
+    mapEl.setAttribute('viewBox', MAP_VIEWBOX);
+
+    MAP_SHAPES.forEach(shape => {
+      const p = document.createElementNS(SVGNS, 'path');
+      p.setAttribute('d', shape.d);
+      p.dataset.code = shape.code;
+      p.dataset.name = shape.name;
+      const c = reformByCode[shape.code];
+      if (c) p.classList.add(c.control === 'majority' ? 'reform' : 'reform-min');
+      mapEl.appendChild(p);
+    });
+
+    function showTip(path, x, y) {
+      const c = reformByCode[path.dataset.code];
+      tipEl.innerHTML = c
+        ? `<strong>${esc(c.name)}</strong>
+           <span class="tag">${CONTROL_LABEL[c.control]}</span>
+           ${c.control === 'majority' ? `<span>Majority of ${c.seats * 2 - c.totalSeats}</span>` : ''}
+           <span>${c.seats} of ${c.totalSeats} seats</span>
+           <span>In control since ${monthYear(c.since)} (${timeSince(c.since)})</span>
+           ${c.note ? `<span class="note">${esc(c.note)}</span>` : ''}`
+        : `<strong>${esc(path.dataset.name)}</strong><span>Not Reform-run</span>`;
+      tipEl.classList.add('show');
+      const w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+      const left = x + 16 + w > window.innerWidth - 8 ? x - w - 16 : x + 16;
+      const top  = Math.min(Math.max(8, y - h / 2), window.innerHeight - h - 8);
+      tipEl.style.left = left + 'px';
+      tipEl.style.top  = top + 'px';
+    }
+    function hideTip() {
+      tipEl.classList.remove('show');
+      mapEl.querySelector('.active')?.classList.remove('active');
+    }
+
+    mapEl.addEventListener('pointermove', e => {
+      const path = e.target.closest('path[data-code]');
+      if (!path) return hideTip();
+      if (!path.classList.contains('active')) {
+        hideTip();
+        path.classList.add('active');
+        mapEl.appendChild(path); // bring to front so its outline shows fully
+      }
+      showTip(path, e.clientX, e.clientY);
+    });
+    mapEl.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') hideTip(); });
+    // On touch screens, tap an area to see its box; tap anywhere else to close
+    document.addEventListener('pointerdown', e => {
+      if (e.pointerType !== 'mouse' && !mapEl.contains(e.target)) hideTip();
+    });
+    window.addEventListener('scroll', () => { if (tipEl.classList.contains('show')) hideTip(); }, { passive: true });
+
+    // ---- Postcode lookup --------------------------------------------------
+    const pcForm    = document.querySelector('.pc-form');
+    const pcInput   = document.getElementById('pc');
+    const pcResults = document.querySelector('.pc-results');
+
+    // Loose council-name matching, so "Kent", "Kent County Council" and "County Durham" / "Durham County Council" line up
+    const norm = s => String(s).toLowerCase().replace(/&/g, 'and')
+      .replace(/\b(county|borough|city|metropolitan|district|council|of|the|royal)\b/g, '')
+      .replace(/[^a-z]/g, '');
+
+    pcForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const pc = pcInput.value.trim();
+      mapEl.querySelectorAll('.picked').forEach(p => p.classList.remove('picked'));
+      if (!pc) { pcResults.innerHTML = '<p class="pc-msg">Enter a postcode to search.</p>'; return; }
+
+      pcResults.innerHTML = '<p class="pc-msg">Looking up&hellip;</p>';
+      let result;
+      try {
+        const res = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(pc)}`);
+        if (res.status === 404) { pcResults.innerHTML = `<p class="pc-msg">We couldn't find that postcode. Check it and try again.</p>`; return; }
+        if (!res.ok) throw new Error(res.status);
+        result = (await res.json()).result;
+      } catch {
+        pcResults.innerHTML = '<p class="pc-msg">Sorry, the postcode lookup isn\'t working right now. Please try again later.</p>';
+        return;
+      }
+
+      // A postcode can sit in two councils (county + district), or one (unitary)
+      const councils = [
+        [result.codes.admin_county, result.admin_county],
+        [result.codes.admin_district, result.admin_district],
+      ].filter(([code, name]) => code && name && !/99999999$/.test(code))
+       .map(([code, name]) => ({ code, name, reform: reformByCode[code] }));
+
+      const keys = new Set(councils.flatMap(c => [norm(c.name), c.reform && norm(c.reform.name)]).filter(Boolean));
+      const matches = SECTIONS.flatMap(s => s.entries.filter(e => keys.has(norm(e.council))).map(e => ({ e, s })))
+        .sort((a, b) => b.e.date.localeCompare(a.e.date));
+
+      councils.forEach(c => mapEl.querySelector(`path[data-code="${c.code}"]`)?.classList.add('picked'));
+
+      pcResults.innerHTML = `
+        <div class="pc-councils">
+          ${councils.map(c => `
+            <div class="pc-council${c.reform ? ' is-reform' : ''}">
+              ${esc(c.reform ? c.reform.name : c.name)}
+              <small>${c.reform ? `${CONTROL_LABEL[c.reform.control]} since ${monthYear(c.reform.since)}` : 'Not Reform-run'}</small>
+            </div>`).join('')}
+        </div>
+        ${matches.length
+          ? `<ul class="entries">${matches.map(({ e, s }) => entryHTML(e, s)).join('')}</ul>`
+          : `<p class="pc-msg">${councils.some(c => c.reform) ? 'No entries yet for your council.' : 'Your council isn\'t run by Reform, so there\'s nothing to show here.'}</p>`}
+      `;
     });
 
     // ---- Submit form ------------------------------------------------------

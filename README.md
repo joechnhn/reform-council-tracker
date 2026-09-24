@@ -8,6 +8,7 @@ cuts to public services, council tax hikes, and scandals & resignations.
 - `index.html` – the page (layout, styling, slider)
 - `data.js` – the tracker entries. **Edit this file to add records.**
 - `privacy.html` – privacy policy page (placeholder wording for now)
+- `map.js` – UK council boundaries for the map (generated from ONS data; no need to edit)
 
 ## Publishing on GitHub Pages
 
@@ -24,6 +25,11 @@ cuts to public services, council tax hikes, and scandals & resignations.
 
 Open `data.js` on GitHub, click the pencil icon, edit, and commit.
 The live site updates within a minute or two.
+
+`data.js` also holds the list of Reform-run councils (`COUNCILS`), which drives the
+map shading and the postcode lookup. Seat numbers change with by-elections and
+defections, so check them now and then. Tracker entries are matched to councils by
+name, so "Kent" and "Kent County Council" both work.
 
 The "Missing something?" form at the bottom is a demo: it checks the fields and
 shows a thank-you message, but nothing is sent or stored yet. The place to
