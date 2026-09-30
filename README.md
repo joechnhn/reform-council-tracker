@@ -13,7 +13,7 @@ cuts to public services, council tax hikes, and scandals & resignations.
 - `look.js` – the look switcher (Bold, Refined, Civic) in the footer of every page
 - `looks.css` – the Refined and Civic styles (Bold is the default styling inside each page)
 - `privacy.html` – privacy policy page (placeholder wording for now)
-- `map.js` – UK council boundaries for the map (generated from ONS data; no need to edit)
+- `map.js` – UK council and region boundaries for the map, and which region each council is in (generated from ONS data; no need to edit)
 
 ## Publishing on GitHub Pages
 

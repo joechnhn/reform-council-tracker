@@ -406,16 +406,19 @@
 /* ==========================================================================
    Map box story counts and council feed pages
    ========================================================================== */
-[data-look="refined"] .map-tip .tip-btn { background: var(--green); color: #fff; border-radius: 99px; font-weight: 600; padding: 8px 15px 7px; }
-[data-look="refined"] .map-tip .tip-btn:hover, [data-look="refined"] .map-tip .tip-btn:focus-visible { background: #1a3324; }
-[data-look="refined"] .map-tip .tip-stories { border-top-color: var(--rule); }
-[data-look="refined"] .map-tip .tip-stories li i { border-radius: 50%; outline: 0; }
-[data-look="refined"] .map-tip .tip-stories b { font-weight: 600; }
+[data-look="refined"] .map-tip .tip-list { border-top-color: var(--rule); }
+[data-look="refined"] .map-tip .tip-list li i { border-radius: 50%; }
+[data-look="refined"] .map-tip .tip-list li > a { border-radius: 6px; }
+[data-look="refined"] .map-tip .tip-list a:hover, [data-look="refined"] .map-tip .tip-list a:focus-visible { background: var(--sage); color: var(--green); }
+[data-look="refined"] .map-tip .tip-list li.here { background: #f3f1ec; }
+[data-look="refined"] #uk-map .regions path { stroke: #9a9588; }
+[data-look="refined"] #uk-map .regions path.on { stroke: var(--green); fill: rgba(35, 65, 47, 0.06); }
 
-[data-look="civic"] .map-tip .tip-btn { background: var(--red); color: #fff; font-family: var(--caslon); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; padding: 8px 12px 7px; }
-[data-look="civic"] .map-tip .tip-btn:hover, [data-look="civic"] .map-tip .tip-btn:focus-visible { background: var(--navy); }
-[data-look="civic"] .map-tip .tip-stories b { font-family: var(--caslon); text-transform: uppercase; letter-spacing: 0.05em; font-size: 13px; }
-[data-look="civic"] .map-tip .tip-stories li, [data-look="civic"] .map-tip .tip-hint { font-variant: small-caps; text-transform: lowercase; letter-spacing: 0.08em; }
+[data-look="civic"] .map-tip .tip-sub, [data-look="civic"] .map-tip .tip-hint { font-style: italic; }
+[data-look="civic"] .map-tip .tip-list { border-top: 1px solid var(--navy); }
+[data-look="civic"] .map-tip .tip-list a:hover, [data-look="civic"] .map-tip .tip-list a:focus-visible { background: var(--red); color: #fff; }
+[data-look="civic"] .map-tip .tip-list li.here { background: #f1ead9; }
+[data-look="civic"] #uk-map .regions path.on { fill: rgba(29, 43, 83, 0.06); }
 
 /* Council feed page */
 [data-look="refined"] .facts { border-top: 1px solid var(--rule); }

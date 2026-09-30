@@ -134,19 +134,25 @@
     .map-tip span { display: block; }
     .map-tip .note { margin-top: 8px; opacity: 0.7; }
     .map-tip.pinned { pointer-events: auto; padding-right: 34px; }
-    .map-tip .tip-stories { margin-top: 10px; padding-top: 9px; border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent); }
-    .map-tip .tip-stories b { display: block; font-size: 15px; margin-bottom: 5px; }
-    .map-tip .tip-stories ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
-    .map-tip .tip-stories li { display: flex; align-items: center; gap: 7px; }
-    .map-tip .tip-stories li i { width: 9px; height: 9px; background: var(--accent); flex: none; outline: 1px solid color-mix(in srgb, currentColor 40%, transparent); }
-    .map-tip .tip-stories li em { font-style: normal; margin-left: auto; padding-left: 12px; }
+    .map-tip { max-width: 320px; }
+    .map-tip .tip-sub { display: block; font-size: 12px; opacity: 0.75; margin-top: -2px; }
+    .map-tip .tip-list { list-style: none; margin: 10px 0 0; padding: 9px 0 0; border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent); display: grid; gap: 2px; }
+    .map-tip .tip-list li > a, .map-tip .tip-list li:not(:has(a)) { display: flex; align-items: center; gap: 8px; padding: 3px 4px; margin: 0 -4px; }
+    .map-tip .tip-list li span { flex: 1; }
+    .map-tip .tip-list li small { font-size: 10px; opacity: 0.7; }
+    .map-tip .tip-list li i { width: 10px; height: 10px; flex: none; }
+    .map-tip .tip-list li i.maj { background: var(--map-reform); }
+    .map-tip .tip-list li i.min { background: repeating-linear-gradient(45deg, var(--map-reform) 0 2px, var(--map-other) 2px 4px); }
+    .map-tip .tip-list li i.oth { background: var(--map-other); }
+    .map-tip .tip-list li em { font-style: normal; padding-left: 10px; }
+    .map-tip .tip-list li em.none { font-size: 10px; opacity: 0.6; }
+    .map-tip .tip-list li.quiet span { opacity: 0.65; }
+    .map-tip .tip-list li.here { background: color-mix(in srgb, currentColor 12%, transparent); }
+    .map-tip .tip-list a:hover, .map-tip .tip-list a:focus-visible { background: var(--map-reform); color: var(--ink); outline: none; }
+    .map-tip.docked { position: static; max-width: none; width: 100%; margin-top: 4px; }
+    #uk-map .regions path { fill: transparent; stroke: var(--ink); stroke-width: 0.9; stroke-opacity: 0.45; pointer-events: none; cursor: default; }
+    #uk-map .regions path.on { fill: color-mix(in srgb, var(--ink) 7%, transparent); stroke-width: 2; stroke-opacity: 1; }
     .map-tip .tip-hint { display: block; margin-top: 10px; font-size: 11px; opacity: 0.6; }
-    .map-tip .tip-btn {
-      display: inline-block; margin-top: 12px;
-      background: var(--yellow); color: var(--ink);
-      padding: 7px 11px 6px; font-size: 13px;
-    }
-    .map-tip .tip-btn:hover, .map-tip .tip-btn:focus-visible { background: var(--red); outline: none; }
     .map-tip .tip-close {
       position: absolute; top: 6px; right: 6px;
       appearance: none; border: 0; background: none; color: inherit; cursor: pointer;
@@ -431,7 +437,7 @@
         <span><i class="k-min"></i>Reform minority or coalition</span>
         <span><i class="k-oth"></i>Other</span>
       </div>
-      <p class="map-foot">Shows county and unitary councils. District councils are included in postcode searches.</p>
+      <p class="map-foot">Hover over a region, or tap it, to see its Reform-run councils and their stories. District councils are included in the lists.</p>
     </div>
   </section>
 
@@ -678,52 +684,84 @@
     });
 
     // ---- Map --------------------------------------------------------------
+    // Councils are drawn and shaded individually; hovering works by region.
     const mapEl = document.getElementById('uk-map');
     const tipEl = document.querySelector('.map-tip');
+    const tipHome = tipEl.parentNode;
+    const mapWrap = document.querySelector('.map-wrap');
     const SVGNS = 'http://www.w3.org/2000/svg';
     mapEl.setAttribute('viewBox', MAP_VIEWBOX);
+
+    const councilLayer = document.createElementNS(SVGNS, 'g');
+    const regionLayer  = document.createElementNS(SVGNS, 'g');
+    councilLayer.setAttribute('class', 'councils');
+    regionLayer.setAttribute('class', 'regions');
+    mapEl.append(councilLayer, regionLayer);
 
     MAP_SHAPES.forEach(shape => {
       const p = document.createElementNS(SVGNS, 'path');
       p.setAttribute('d', shape.d);
       p.dataset.code = shape.code;
       p.dataset.name = shape.name;
+      p.dataset.region = shape.region;
       const c = reformByCode[shape.code];
       if (c) p.classList.add(c.control === 'majority' ? 'reform' : 'reform-min');
-      mapEl.appendChild(p);
+      councilLayer.appendChild(p);
     });
+    const regionPaths = {};
+    MAP_REGIONS.forEach(r => {
+      const p = document.createElementNS(SVGNS, 'path');
+      p.setAttribute('d', r.d);
+      regionLayer.appendChild(p);
+      regionPaths[r.code] = p;
+    });
+    const regionName = Object.fromEntries(MAP_REGIONS.map(r => [r.code, r.name]));
 
-    // Hovering shows a preview that follows the pointer. Clicking (or tapping) an area pins
-    // the box in place so its "See stories" button can be clicked.
+    // Short names for lists: "Durham County Council" -> "Durham"
+    const shortName = n => n.replace(/\s+(County|Metropolitan Borough|Metropolitan District|London Borough|Borough|District|City)?\s*Council$/, '');
+
+    // The councils to list for a region: every Reform-run council in it, plus any other
+    // council in it that has stories
+    function regionCouncils(code) {
+      const list = COUNCILS.filter(c => COUNCIL_REGION[c.code] === code)
+        .map(c => ({ name: c.name, reform: c, n: entriesFor(c.name).length }));
+      const seen = new Set(list.map(x => norm(x.name)));
+      MAP_SHAPES.filter(s => s.region === code && !reformByCode[s.code]).forEach(s => {
+        const n = entriesFor(s.name).length;
+        const name = allEntries().find(({ e }) => norm(e.council) === norm(s.name))?.e.council;
+        if (n && !seen.has(norm(s.name))) { list.push({ name: name || s.name, reform: null, n }); seen.add(norm(s.name)); }
+      });
+      return list;
+    }
+
+    // Hovering shows a preview; clicking (or tapping) a region pins the list so its links work
     let pinned = null;
 
-    function tipHTML(path, isPinned) {
-      const c = reformByCode[path.dataset.code];
-      const name = c ? c.name : path.dataset.name;
-      const list = entriesFor(name);
-      const bySection = SECTIONS.map(s => ({ s, n: list.filter(x => x.s === s).length })).filter(x => x.n);
-      const canOpen = list.length > 0 || !!c;
+    function tipHTML(regionCode, hoveredName, isPinned) {
+      const list = regionCouncils(regionCode).sort((a, b) =>
+        (norm(b.name) === norm(hoveredName)) - (norm(a.name) === norm(hoveredName)) || b.n - a.n || a.name.localeCompare(b.name));
+      const reformCount = list.filter(x => x.reform).length;
+      const stories = list.reduce((t, x) => t + x.n, 0);
 
-      const status = c
-        ? `<span class="tag">${CONTROL_LABEL[c.control]}</span>
-           ${c.control === 'majority' ? `<span>Majority of ${c.seats * 2 - c.totalSeats}</span>` : ''}
-           <span>${c.seats} of ${c.totalSeats} seats</span>
-           <span>In control since ${monthYear(c.since)} (${timeSince(c.since)})</span>
-           ${c.note ? `<span class="note">${esc(c.note)}</span>` : ''}`
-        : `<span>Not Reform-run</span>`;
+      const sub = reformCount
+        ? `${reformCount} Reform-run council${reformCount === 1 ? '' : 's'} · ${storyCount(stories)}`
+        : (stories ? storyCount(stories) : 'No Reform-run councils');
 
-      const stories = list.length
-        ? `<div class="tip-stories"><b>${storyCount(list.length)}</b>
-             <ul>${bySection.map(({ s, n }) => `<li data-section="${esc(s.id)}"><i></i>${esc(s.navLabel || s.label)}<em>${n}</em></li>`).join('')}</ul></div>`
-        : (c ? `<div class="tip-stories"><b>No stories yet</b></div>` : '');
-
-      const action = !canOpen ? ''
-        : isPinned
-          ? `<a class="tip-btn" href="${councilUrl(name)}">${list.length ? `See ${storyCount(list.length)}` : 'Council page'} &rarr;</a>`
-          : `<span class="tip-hint">Click the area to open</span>`;
+      const rows = list.map(x => {
+        const label = `${esc(shortName(x.name))}${x.reform && x.reform.control !== 'majority' ? ` <small>(${x.reform.control})</small>` : ''}${x.reform ? '' : ' <small>(not Reform-run)</small>'}`;
+        const count = x.n ? `<em>${x.n}</em>` : '<em class="none">no stories yet</em>';
+        const inner = `<i class="${x.reform ? (x.reform.control === 'majority' ? 'maj' : 'min') : 'oth'}"></i><span>${label}</span>${count}`;
+        const cls = `${x.n ? '' : 'quiet'}${norm(x.name) === norm(hoveredName) ? ' here' : ''}`;
+        return isPinned
+          ? `<li class="${cls}"><a href="${councilUrl(x.name)}">${inner}</a></li>`
+          : `<li class="${cls}">${inner}</li>`;
+      }).join('');
 
       return `${isPinned ? '<button type="button" class="tip-close" aria-label="Close">&times;</button>' : ''}
-        <strong>${esc(name)}</strong>${status}${stories}${action}`;
+        <strong>${esc(regionName[regionCode] || '')}</strong>
+        <span class="tip-sub">${sub}</span>
+        ${rows ? `<ul class="tip-list">${rows}</ul>` : ''}
+        ${rows ? (isPinned ? '<span class="tip-hint">Choose a council to see its stories</span>' : '<span class="tip-hint">Click the region to open this list</span>') : ''}`;
     }
 
     function placeTip(x, y) {
@@ -734,24 +772,36 @@
       tipEl.style.top  = top + 'px';
     }
 
+    // On phones a pinned list sits under the map instead of floating
+    const narrow = matchMedia('(max-width: 720px)');
+
     function showTip(path, x, y, isPinned = false) {
-      tipEl.innerHTML = tipHTML(path, isPinned);
+      tipEl.innerHTML = tipHTML(path.dataset.region, reformByCode[path.dataset.code]?.name || path.dataset.name, isPinned);
+      const docked = isPinned && narrow.matches;
+      if (docked && tipEl.parentNode !== mapWrap) mapWrap.appendChild(tipEl);
+      if (!docked && tipEl.parentNode !== tipHome) tipHome.appendChild(tipEl);
       tipEl.classList.add('show');
       tipEl.classList.toggle('pinned', isPinned);
-      placeTip(x, y);
+      tipEl.classList.toggle('docked', docked);
+      if (docked) { tipEl.style.left = tipEl.style.top = ''; tipEl.scrollIntoView({ block: 'nearest' }); }
+      else placeTip(x, y);
     }
 
     function activate(path) {
+      const region = path.dataset.region;
+      Object.entries(regionPaths).forEach(([code, p]) => p.classList.toggle('on', code === region));
       if (path.classList.contains('active')) return;
-      mapEl.querySelector('.active')?.classList.remove('active');
+      councilLayer.querySelector('.active')?.classList.remove('active');
       path.classList.add('active');
-      mapEl.appendChild(path); // bring to front so its outline shows fully
+      councilLayer.appendChild(path); // bring to front so its outline shows fully
     }
 
     function hideTip() {
       pinned = null;
-      tipEl.classList.remove('show', 'pinned');
-      mapEl.querySelector('.active')?.classList.remove('active');
+      tipEl.classList.remove('show', 'pinned', 'docked');
+      if (tipEl.parentNode !== tipHome) tipHome.appendChild(tipEl);
+      councilLayer.querySelector('.active')?.classList.remove('active');
+      regionLayer.querySelector('.on')?.classList.remove('on');
     }
 
     mapEl.addEventListener('pointermove', e => {
@@ -769,7 +819,7 @@
       pinned = path;
       activate(path);
       showTip(path, e.clientX, e.clientY, true);
-      tipEl.querySelector('.tip-btn')?.focus({ preventScroll: true });
+      tipEl.querySelector('.tip-list a')?.focus({ preventScroll: true });
     });
 
     tipEl.addEventListener('click', e => { if (e.target.closest('.tip-close')) hideTip(); });
@@ -777,7 +827,9 @@
       if (pinned && !mapEl.contains(e.target) && !tipEl.contains(e.target)) hideTip();
     });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && pinned) hideTip(); });
-    window.addEventListener('scroll', () => { if (tipEl.classList.contains('show')) hideTip(); }, { passive: true });
+    window.addEventListener('scroll', () => {
+      if (tipEl.classList.contains('show') && !tipEl.classList.contains('docked')) hideTip();
+    }, { passive: true });
 
     // ---- Postcode lookup --------------------------------------------------
     const pcForm    = document.querySelector('.pc-form');
