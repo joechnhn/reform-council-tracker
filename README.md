@@ -8,6 +8,7 @@ cuts to public services, council tax hikes, and scandals & resignations.
 - `index.html` – the page (layout, styling, slider)
 - `data.js` – the tracker entries. **Edit this file to add records.**
 - `story.html` – the page for a single story, filled in from `data.js`
+- `council.html` – a feed of every story about one council (e.g. `council.html?c=kent-county-council`)
 - `common.js` – shared code used by both pages (no need to edit)
 - `look.js` – the look switcher (Bold, Refined, Civic) in the footer of every page
 - `looks.css` – the Refined and Civic styles (Bold is the default styling inside each page)
@@ -38,6 +39,9 @@ name, so "Kent" and "Kent County Council" both work.
 The "Missing something?" form at the bottom is a demo: it checks the fields and
 shows a thank-you message, but nothing is sent or stored yet. The place to
 connect it to a database is marked `DEMO ONLY` in `index.html`.
+
+Each council has its own feed page, linked from the map (click an area), story pages,
+postcode results and entry listings.
 
 Every entry has its own page at `story.html?id=...`, with share buttons. See the
 notes at the top of `data.js` for the optional `body` (full story text) and `id`

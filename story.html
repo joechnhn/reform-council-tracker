@@ -91,6 +91,8 @@
     .meta dt { font-size: 12px; opacity: 0.55; margin-bottom: 2px; }
     .meta dd { margin: 0; font-size: 15px; }
     .meta .status { display: inline-block; margin-top: 5px; background: var(--red); padding: 3px 7px 2px; font-size: 12px; }
+    .meta .council-link { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+    .meta .council-link:hover { text-decoration-thickness: 2px; }
 
     .share h2 { font-size: 12px; opacity: 0.55; margin: 0 0 8px; font-weight: 700; }
     .share-btns { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -250,7 +252,7 @@
               <div class="meta">
                 <dl>
                   <div><dt>Date</dt><dd><time datetime="${esc(e.date)}">${longDate(e.date)}</time></dd></div>
-                  <div><dt>Council</dt><dd>${esc(council ? council.name : e.council)}
+                  <div><dt>Council</dt><dd><a class="council-link" href="${councilUrl(e.council)}">${esc(council ? council.name : e.council)} &rarr;</a>
                     ${council ? `<br><span class="status">${CONTROL_LABEL[council.control]} since ${monthYear(council.since)}</span>` : ''}</dd></div>
                 </dl>
               </div>

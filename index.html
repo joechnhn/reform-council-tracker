@@ -133,6 +133,27 @@
     }
     .map-tip span { display: block; }
     .map-tip .note { margin-top: 8px; opacity: 0.7; }
+    .map-tip.pinned { pointer-events: auto; padding-right: 34px; }
+    .map-tip .tip-stories { margin-top: 10px; padding-top: 9px; border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent); }
+    .map-tip .tip-stories b { display: block; font-size: 15px; margin-bottom: 5px; }
+    .map-tip .tip-stories ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+    .map-tip .tip-stories li { display: flex; align-items: center; gap: 7px; }
+    .map-tip .tip-stories li i { width: 9px; height: 9px; background: var(--accent); flex: none; outline: 1px solid color-mix(in srgb, currentColor 40%, transparent); }
+    .map-tip .tip-stories li em { font-style: normal; margin-left: auto; padding-left: 12px; }
+    .map-tip .tip-hint { display: block; margin-top: 10px; font-size: 11px; opacity: 0.6; }
+    .map-tip .tip-btn {
+      display: inline-block; margin-top: 12px;
+      background: var(--yellow); color: var(--ink);
+      padding: 7px 11px 6px; font-size: 13px;
+    }
+    .map-tip .tip-btn:hover, .map-tip .tip-btn:focus-visible { background: var(--red); outline: none; }
+    .map-tip .tip-close {
+      position: absolute; top: 6px; right: 6px;
+      appearance: none; border: 0; background: none; color: inherit; cursor: pointer;
+      font-size: 22px; line-height: 1; padding: 2px 6px;
+    }
+    #uk-map path { cursor: pointer; }
+    .meta a.council-link:hover, .pc-council a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
     /* ---- Postcode lookup ----------------------------------------------- */
     #local { padding: 0 var(--pad) 100px; }
@@ -537,7 +558,7 @@
           <li class="entry"${section ? ` data-section="${esc(section.id)}"` : ''}>
             <div class="meta">
               <time datetime="${esc(e.date)}">${dotDate(e.date)}</time>
-              <span>${esc(e.council)}</span>
+              <a class="council-link" href="${councilUrl(e.council)}">${esc(e.council)}</a>
               ${section ? `<span class="sec">${esc(section.navLabel || section.label)}</span>` : ''}
             </div>
             <div>
@@ -672,43 +693,90 @@
       mapEl.appendChild(p);
     });
 
-    function showTip(path, x, y) {
+    // Hovering shows a preview that follows the pointer. Clicking (or tapping) an area pins
+    // the box in place so its "See stories" button can be clicked.
+    let pinned = null;
+
+    function tipHTML(path, isPinned) {
       const c = reformByCode[path.dataset.code];
-      tipEl.innerHTML = c
-        ? `<strong>${esc(c.name)}</strong>
-           <span class="tag">${CONTROL_LABEL[c.control]}</span>
+      const name = c ? c.name : path.dataset.name;
+      const list = entriesFor(name);
+      const bySection = SECTIONS.map(s => ({ s, n: list.filter(x => x.s === s).length })).filter(x => x.n);
+      const canOpen = list.length > 0 || !!c;
+
+      const status = c
+        ? `<span class="tag">${CONTROL_LABEL[c.control]}</span>
            ${c.control === 'majority' ? `<span>Majority of ${c.seats * 2 - c.totalSeats}</span>` : ''}
            <span>${c.seats} of ${c.totalSeats} seats</span>
            <span>In control since ${monthYear(c.since)} (${timeSince(c.since)})</span>
            ${c.note ? `<span class="note">${esc(c.note)}</span>` : ''}`
-        : `<strong>${esc(path.dataset.name)}</strong><span>Not Reform-run</span>`;
-      tipEl.classList.add('show');
+        : `<span>Not Reform-run</span>`;
+
+      const stories = list.length
+        ? `<div class="tip-stories"><b>${storyCount(list.length)}</b>
+             <ul>${bySection.map(({ s, n }) => `<li data-section="${esc(s.id)}"><i></i>${esc(s.navLabel || s.label)}<em>${n}</em></li>`).join('')}</ul></div>`
+        : (c ? `<div class="tip-stories"><b>No stories yet</b></div>` : '');
+
+      const action = !canOpen ? ''
+        : isPinned
+          ? `<a class="tip-btn" href="${councilUrl(name)}">${list.length ? `See ${storyCount(list.length)}` : 'Council page'} &rarr;</a>`
+          : `<span class="tip-hint">Click the area to open</span>`;
+
+      return `${isPinned ? '<button type="button" class="tip-close" aria-label="Close">&times;</button>' : ''}
+        <strong>${esc(name)}</strong>${status}${stories}${action}`;
+    }
+
+    function placeTip(x, y) {
       const w = tipEl.offsetWidth, h = tipEl.offsetHeight;
-      const left = x + 16 + w > window.innerWidth - 8 ? x - w - 16 : x + 16;
+      const left = x + 16 + w > window.innerWidth - 8 ? Math.max(8, x - w - 16) : x + 16;
       const top  = Math.min(Math.max(8, y - h / 2), window.innerHeight - h - 8);
       tipEl.style.left = left + 'px';
       tipEl.style.top  = top + 'px';
     }
+
+    function showTip(path, x, y, isPinned = false) {
+      tipEl.innerHTML = tipHTML(path, isPinned);
+      tipEl.classList.add('show');
+      tipEl.classList.toggle('pinned', isPinned);
+      placeTip(x, y);
+    }
+
+    function activate(path) {
+      if (path.classList.contains('active')) return;
+      mapEl.querySelector('.active')?.classList.remove('active');
+      path.classList.add('active');
+      mapEl.appendChild(path); // bring to front so its outline shows fully
+    }
+
     function hideTip() {
-      tipEl.classList.remove('show');
+      pinned = null;
+      tipEl.classList.remove('show', 'pinned');
       mapEl.querySelector('.active')?.classList.remove('active');
     }
 
     mapEl.addEventListener('pointermove', e => {
+      if (pinned || e.pointerType !== 'mouse') return;
       const path = e.target.closest('path[data-code]');
       if (!path) return hideTip();
-      if (!path.classList.contains('active')) {
-        hideTip();
-        path.classList.add('active');
-        mapEl.appendChild(path); // bring to front so its outline shows fully
-      }
+      activate(path);
       showTip(path, e.clientX, e.clientY);
     });
-    mapEl.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') hideTip(); });
-    // On touch screens, tap an area to see its box; tap anywhere else to close
-    document.addEventListener('pointerdown', e => {
-      if (e.pointerType !== 'mouse' && !mapEl.contains(e.target)) hideTip();
+    mapEl.addEventListener('pointerleave', e => { if (!pinned && e.pointerType === 'mouse') hideTip(); });
+
+    mapEl.addEventListener('click', e => {
+      const path = e.target.closest('path[data-code]');
+      if (!path) return hideTip();
+      pinned = path;
+      activate(path);
+      showTip(path, e.clientX, e.clientY, true);
+      tipEl.querySelector('.tip-btn')?.focus({ preventScroll: true });
     });
+
+    tipEl.addEventListener('click', e => { if (e.target.closest('.tip-close')) hideTip(); });
+    document.addEventListener('click', e => {
+      if (pinned && !mapEl.contains(e.target) && !tipEl.contains(e.target)) hideTip();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && pinned) hideTip(); });
     window.addEventListener('scroll', () => { if (tipEl.classList.contains('show')) hideTip(); }, { passive: true });
 
     // ---- Postcode lookup --------------------------------------------------
@@ -751,7 +819,7 @@
         <div class="pc-councils">
           ${councils.map(c => `
             <div class="pc-council${c.reform ? ' is-reform' : ''}">
-              ${esc(c.reform ? c.reform.name : c.name)}
+              ${c.reform || entriesFor(c.name).length ? `<a href="${councilUrl(c.reform ? c.reform.name : c.name)}">${esc(c.reform ? c.reform.name : c.name)} &rarr;</a>` : esc(c.name)}
               <small>${c.reform ? `${CONTROL_LABEL[c.reform.control]} since ${monthYear(c.reform.since)}` : 'Not Reform-run'}</small>
             </div>`).join('')}
         </div>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reform Council Tracker</title>
+  <meta name="description" content="Tracking decisions made by Reform-run councils across the UK.">
+  <meta property="og:site_name" content="Reform Council Tracker">
+  <meta property="og:title" content="Reform Council Tracker">
+  <meta property="og:description" content="Tracking decisions made by Reform-run councils across the UK.">
+  <meta name="twitter:card" content="summary">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Libre+Caslon+Text:wght@400;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="look.js"></script>
+  <style>
+    :root {
+      --bg:     #eaebe5;
+      --ink:    #000;
+      --red:    #d8392b;
+      --yellow: #ecec3c;
+      --font:   'Archivo', Arial, Helvetica, sans-serif;
+      --pad:    clamp(16px, 2.2vw, 32px);
+      --accent: var(--ink);
+      --on-accent: var(--bg);
+    }
+    [data-section="cuts"]    { --accent: var(--red);    --on-accent: var(--ink); }
+    [data-section="tax"]     { --accent: var(--yellow); --on-accent: var(--ink); }
+    [data-section="scandal"] { --accent: var(--ink);    --on-accent: var(--bg); }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      font-weight: 700;
+      font-size: 15px;
+      line-height: 1.2;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    p { margin: 0; }
+
+    /* ---- Top bar ------------------------------------------------------- */
+    .top {
+      background: var(--red);
+      padding: var(--pad);
+      display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+      font-size: 17px;
+    }
+    .top .home { font-weight: 900; font-stretch: 125%; letter-spacing: -0.03em; font-size: clamp(17px, 2vw, 24px); }
+    .top nav { display: flex; gap: 20px; }
+    .top a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    /* ---- Council header ------------------------------------------------ */
+    article { padding: 70px var(--pad) 40px; }
+    .kicker {
+      display: inline-flex; gap: 12px;
+      background: var(--accent); color: var(--on-accent);
+      padding: 6px 10px 5px;
+      font-size: 15px;
+      margin-bottom: 26px;
+    }
+    .kicker:hover { background: var(--red); color: var(--ink); }
+    h1 {
+      margin: 0;
+      max-width: 18ch;
+      font-size: clamp(40px, 7vw, 108px);
+      line-height: 0.88;
+      letter-spacing: -0.045em;
+      font-weight: 700;
+      text-wrap: balance;
+    }
+    .facts {
+      display: flex; flex-wrap: wrap; gap: 14px 40px;
+      margin-top: 44px; padding-top: 18px;
+      border-top: 2px solid var(--ink);
+    }
+    .facts div { display: flex; flex-direction: column; gap: 4px; }
+    .facts dt { font-size: 12px; opacity: 0.55; }
+    .facts dd { margin: 0; font-size: clamp(17px, 1.6vw, 22px); letter-spacing: -0.02em; }
+    .facts .status { display: inline-block; background: var(--red); padding: 3px 8px 2px; }
+    .facts-note { margin-top: 14px; font-size: 13px; opacity: 0.7; max-width: 70ch; }
+
+    .counts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+    .counts a {
+      background: var(--accent); color: var(--on-accent);
+      padding: 7px 11px 6px; font-size: 14px;
+    }
+    .counts a:hover { background: var(--ink); color: var(--bg); }
+
+    /* ---- Feed ---------------------------------------------------------- */
+    .feed { padding: 0 var(--pad) 110px; }
+    .feed-head {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+      border-top: 2px solid var(--ink); padding-top: 18px; margin-bottom: 8px;
+    }
+    .feed-head h2 { margin: 0; font-size: clamp(30px, 4vw, 56px); line-height: 0.9; letter-spacing: -0.04em; }
+    .feed-head a { font-size: 15px; }
+    .feed-head a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    .entries { list-style: none; margin: 0; padding: 0; }
+    .entry {
+      display: grid;
+      grid-template-columns: 1fr 3fr;
+      gap: var(--pad);
+      padding: 22px 0 28px;
+      border-top: 1px solid var(--ink);
+    }
+    .entry:last-child { border-bottom: 1px solid var(--ink); }
+    .meta { display: flex; flex-direction: column; gap: 4px; font-size: 15px; }
+    .meta .sec { display: inline-block; align-self: start; background: var(--accent); color: var(--on-accent); padding: 3px 7px 2px; font-size: 12px; }
+    .entry h3 {
+      margin: 0 0 12px;
+      font-size: clamp(24px, 2.8vw, 42px);
+      line-height: 0.95;
+      letter-spacing: -0.035em;
+      font-weight: 700;
+    }
+    .entry h3 a:hover { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 4px; }
+    .entry p { max-width: 70ch; font-size: 15px; margin-bottom: 16px; }
+    .source {
+      display: inline-block;
+      font-size: 13px;
+      background: var(--accent); color: var(--on-accent);
+      padding: 5px 9px 4px;
+    }
+    .source:hover { background: var(--ink); color: var(--bg); }
+    .empty { padding: 28px 0; border-top: 1px solid var(--ink); }
+    .empty a, .missing a { text-decoration: underline; text-underline-offset: 3px; }
+
+    /* ---- Not found ----------------------------------------------------- */
+    .missing { padding: 100px var(--pad) 140px; }
+    .missing h1 { margin-bottom: 26px; }
+
+    /* ---- Footer -------------------------------------------------------- */
+    footer {
+      background: var(--ink); color: var(--bg);
+      padding: 60px var(--pad) var(--pad);
+      display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+      font-size: 15px;
+    }
+    footer a { text-decoration: underline; text-underline-offset: 3px; }
+
+    @media (max-width: 720px) {
+      .top { flex-direction: column; gap: 10px; }
+      .top nav { gap: 14px; font-size: 14px; }
+      article { padding-top: 44px; }
+      .facts { gap: 14px 24px; }
+      .entry { grid-template-columns: 1fr; gap: 10px; }
+      .meta { flex-direction: row; flex-wrap: wrap; gap: 6px 12px; }
+    }
+  </style>
+  <link rel="stylesheet" href="looks.css">
+</head>
+<body>
+
+  <header class="top">
+    <div class="bunting" aria-hidden="true"></div>
+    <a class="home" href="index.html">Reform Council Tracker</a>
+    <nav aria-label="Sections"></nav>
+  </header>
+
+  <main id="council"></main>
+
+  <footer>
+    <p>Know something we've missed about this council? <a href="index.html#submit">Tell us</a>.</p>
+    <p><a href="privacy.html">Privacy policy</a></p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="common.js"></script>
+  <script>
+    const main = document.getElementById('council');
+    const slug = new URLSearchParams(location.search).get('c') || '';
+
+    // Section links in the top bar
+    document.querySelector('.top nav').innerHTML = SECTIONS
+      .map(s => `<a href="index.html#${esc(s.id)}">${esc(s.navLabel || s.label)}</a>`).join('');
+
+    // Find the council: first on the Reform list, otherwise any council named in an entry
+    const reform = COUNCILS.find(c => slugify(c.name) === slug);
+    const named  = reform ? reform.name : (allEntries().find(({ e }) => councilSlug(e.council) === slug) || {}).e?.council;
+
+    if (!named) {
+      main.innerHTML = `
+        <section class="missing">
+          <h1>Council not found</h1>
+          <p>We don't have a page for this council. <a href="index.html">Back to the tracker</a>.</p>
+        </section>`;
+    } else {
+      const list = entriesFor(named);
+      document.title = `${named} – Reform Council Tracker`;
+      document.querySelector('meta[name="description"]').content =
+        `${storyCount(list.length)} about ${named} on the Reform Council Tracker.`;
+
+      const facts = reform ? `
+        <dl class="facts">
+          <div><dt>Control</dt><dd><span class="status">${CONTROL_LABEL[reform.control]}</span></dd></div>
+          ${reform.control === 'majority' ? `<div><dt>Majority</dt><dd>${reform.seats * 2 - reform.totalSeats}</dd></div>` : ''}
+          <div><dt>Reform seats</dt><dd>${reform.seats} of ${reform.totalSeats}</dd></div>
+          <div><dt>In control since</dt><dd>${monthYear(reform.since)} (${timeSince(reform.since)})</dd></div>
+        </dl>
+        ${reform.note ? `<p class="facts-note">${esc(reform.note)}</p>` : ''}` : `
+        <dl class="facts">
+          <div><dt>Control</dt><dd>Not currently Reform-run</dd></div>
+        </dl>`;
+
+      // Story counts by section, linking to that part of the feed
+      const counts = SECTIONS
+        .map(s => ({ s, n: list.filter(x => x.s === s).length }))
+        .filter(x => x.n)
+        .map(({ s, n }) => `<a href="#feed-${esc(s.id)}" data-section="${esc(s.id)}">${esc(s.navLabel || s.label)}: ${n}</a>`)
+        .join('');
+
+      main.innerHTML = `
+        <article>
+          <a class="kicker" href="index.html#local">Council feed</a>
+          <h1>${esc(named)}</h1>
+          ${facts}
+          ${counts ? `<div class="counts">${counts}</div>` : ''}
+        </article>
+
+        <section class="feed">
+          <div class="feed-head">
+            <h2>${storyCount(list.length)}</h2>
+            <a href="index.html">All councils &rarr;</a>
+          </div>
+          ${list.length ? `<ul class="entries">${list.map(({ e, s }, i) => `
+            <li class="entry" data-section="${esc(s.id)}"${list.findIndex(x => x.s === s) === i ? ` id="feed-${esc(s.id)}"` : ''}>
+              <div class="meta">
+                <time datetime="${esc(e.date)}">${dotDate(e.date)}</time>
+                <span class="sec">${esc(s.navLabel || s.label)}</span>
+              </div>
+              <div>
+                <h3><a href="${entryUrl(e)}">${esc(e.title)}</a></h3>
+                <p>${esc(e.summary)}</p>
+                <a class="source" href="${entryUrl(e)}">Read more &rarr;</a>
+              </div>
+            </li>`).join('')}</ul>`
+          : `<p class="empty">No stories yet for this council. Know of one? <a href="index.html#submit">Tell us</a>.</p>`}
+        </section>`;
+    }
+  </script>
+</body>
+</html>

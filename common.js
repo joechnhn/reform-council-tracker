@@ -45,3 +45,17 @@ const entryUrl = e => `story.html?id=${encodeURIComponent(entryId(e))}`;
 
 // Every entry, paired with its section
 const allEntries = () => SECTIONS.flatMap(s => s.entries.map(e => ({ e, s })));
+
+// ---- Council pages --------------------------------------------------------
+// A council's full name: its name on the Reform council list if it's there, otherwise as written
+const councilName = name => (findReformCouncil(name) || { name }).name;
+const councilSlug = name => slugify(councilName(name));
+const councilUrl  = name => `council.html?c=${encodeURIComponent(councilSlug(name))}`;
+
+// Every entry for a council, newest first (matches "Kent" and "Kent County Council" alike)
+const entriesFor = name => allEntries()
+  .filter(({ e }) => norm(e.council) === norm(name))
+  .sort((a, b) => b.e.date.localeCompare(a.e.date));
+
+// "3 stories", "1 story"
+const storyCount = n => `${n} ${n === 1 ? 'story' : 'stories'}`;

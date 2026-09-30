@@ -402,3 +402,39 @@
   [data-look="refined"] .tabs { gap: 8px; }
   [data-look="refined"] .tab, [data-look="civic"] .tab { min-height: 0; }
 }
+
+/* ==========================================================================
+   Map box story counts and council feed pages
+   ========================================================================== */
+[data-look="refined"] .map-tip .tip-btn { background: var(--green); color: #fff; border-radius: 99px; font-weight: 600; padding: 8px 15px 7px; }
+[data-look="refined"] .map-tip .tip-btn:hover, [data-look="refined"] .map-tip .tip-btn:focus-visible { background: #1a3324; }
+[data-look="refined"] .map-tip .tip-stories { border-top-color: var(--rule); }
+[data-look="refined"] .map-tip .tip-stories li i { border-radius: 50%; outline: 0; }
+[data-look="refined"] .map-tip .tip-stories b { font-weight: 600; }
+
+[data-look="civic"] .map-tip .tip-btn { background: var(--red); color: #fff; font-family: var(--caslon); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; padding: 8px 12px 7px; }
+[data-look="civic"] .map-tip .tip-btn:hover, [data-look="civic"] .map-tip .tip-btn:focus-visible { background: var(--navy); }
+[data-look="civic"] .map-tip .tip-stories b { font-family: var(--caslon); text-transform: uppercase; letter-spacing: 0.05em; font-size: 13px; }
+[data-look="civic"] .map-tip .tip-stories li, [data-look="civic"] .map-tip .tip-hint { font-variant: small-caps; text-transform: lowercase; letter-spacing: 0.08em; }
+
+/* Council feed page */
+[data-look="refined"] .facts { border-top: 1px solid var(--rule); }
+[data-look="refined"] .facts dt { opacity: 1; color: var(--muted); font-weight: 600; }
+[data-look="refined"] .facts dd { font-family: var(--serif); letter-spacing: -0.01em; }
+[data-look="refined"] .facts .status { background: var(--red); color: #fff; border-radius: 99px; font-family: var(--font); font-weight: 600; font-size: 14px; padding: 4px 12px 3px; }
+[data-look="refined"] .counts a { border-radius: 99px; font-weight: 600; padding: 7px 14px 6px; }
+[data-look="refined"] .feed-head { border-top: 1px solid var(--rule); }
+[data-look="refined"] .feed-head h2 { font-family: var(--serif); font-weight: 400; color: var(--green); letter-spacing: -0.02em; }
+[data-look="refined"] .feed-head a { font-weight: 600; color: var(--green); }
+[data-look="refined"] .entry .sec { border-radius: 99px; padding: 3px 9px; font-weight: 600; }
+
+[data-look="civic"] .facts { border-top: 4px double var(--navy); }
+[data-look="civic"] .facts dt { opacity: 1; font-variant: small-caps; text-transform: lowercase; letter-spacing: 0.1em; font-size: 14px; }
+[data-look="civic"] .facts dd { font-family: var(--caslon); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; font-size: clamp(15px, 1.4vw, 19px); }
+[data-look="civic"] .facts .status { background: var(--red); color: #fff; }
+[data-look="civic"] .facts-note { font-style: italic; }
+[data-look="civic"] .counts a { font-family: var(--caslon); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: 12px; padding: 8px 12px 7px; }
+[data-look="civic"] .feed-head { border-top: 4px double var(--navy); }
+[data-look="civic"] .feed-head h2 { font-family: var(--caslon); font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--red); line-height: 1.1; }
+[data-look="civic"] .feed-head a { font-variant: small-caps; text-transform: lowercase; letter-spacing: 0.1em; font-size: 16px; }
+[data-look="civic"] .entry .sec { font-family: var(--caslon); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: 10.5px; padding: 4px 8px 3px; }
